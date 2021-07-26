@@ -11,3 +11,5 @@ web-build/
 
 # macOS
 .DS_Store
+
+src/lib/firebase/firebaseConfig.json

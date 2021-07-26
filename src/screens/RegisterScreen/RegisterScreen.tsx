@@ -1,14 +1,46 @@
 import { StatusBar } from "expo-status-bar";
-import React, { useState } from "react";
+import React, { useLayoutEffect } from "react";
+import { useForm } from "react-hook-form";
 import { KeyboardAvoidingView, StyleSheet, View } from "react-native";
-import { Button, Input, Text } from "react-native-elements";
+import { Button, Text } from "react-native-elements";
 
-const RegisterScreen = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+import ControlledInput from "#root/components/ui/ControlledInput";
+import { auth } from "#root/lib/firebase";
+import { RegisterScreenProps } from "#root/lib/stack";
 
-  const handleLogin = () => {};
-  const handleRegister = () => {};
+type RegisterFormPayload = {
+  name: string;
+  email: string;
+  password: string;
+  imageUrl?: string;
+};
+
+const RegisterScreen = ({ navigation }: RegisterScreenProps) => {
+  const { control, handleSubmit } = useForm<RegisterFormPayload>();
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerBackTitle: "Back to Login",
+    });
+  }, [navigation]);
+
+  const handleRegister = async (payload: RegisterFormPayload) => {
+    console.log(payload);
+    try {
+      const authUser = await auth.createUserWithEmailAndPassword(payload.email, payload.password);
+      console.log({ authUser });
+      await authUser.user?.updateProfile({
+        displayName: payload.name,
+        photoURL:
+          payload.imageUrl ||
+          "https://cencup.com/wp-content/uploads/2019/07/avatar-placeholder.png",
+      });
+    } catch (err) {
+      alert(err?.message);
+    }
+  };
+
+  const handlePreRegister = handleSubmit(handleRegister);
 
   return (
     <KeyboardAvoidingView behavior="padding" style={styles.container}>
@@ -19,30 +51,31 @@ const RegisterScreen = () => {
       </Text>
 
       <View style={styles.inputContainer}>
-        <Input
+        <ControlledInput
           autoFocus
-          onChangeText={text => setEmail(text)}
+          control={control}
+          name="name"
+          placeholder="Full Name"
+          textContentType="name"
+        />
+        <ControlledInput
+          control={control}
+          name="email"
           placeholder="Email"
           autoCompleteType="email"
-          value={email}
         />
-        <Input
-          onChangeText={text => setPassword(text)}
-          placeholder="Password"
-          secureTextEntry
-          textContentType="password"
-          value={password}
+        <ControlledInput control={control} name="password" placeholder="Password" secureTextEntry />
+        <ControlledInput
+          control={control}
+          name="imageUrl"
+          placeholder="Profile Picture URL (optional)"
+          onSubmitEditing={handlePreRegister}
         />
       </View>
 
-      <Button containerStyle={styles.button} onPress={handleLogin} title="Login" />
-      <Button
-        containerStyle={styles.button}
-        onPress={handleRegister}
-        title="Register"
-        type="outline"
-      />
-      <View style={{ height: 100 }} />
+      <Button containerStyle={styles.button} onPress={handlePreRegister} raised title="Register" />
+
+      {/* <View style={{ height: 100 }} /> */}
     </KeyboardAvoidingView>
   );
 };

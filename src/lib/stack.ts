@@ -4,11 +4,17 @@ import { createStackNavigator, StackNavigationProp } from "@react-navigation/sta
 export type RootStackParamList = {
   Login: undefined;
   Register: undefined;
+  Home: undefined;
 };
+
+export const Stack = createStackNavigator<RootStackParamList>();
 
 export type ProfileScreenProps = {
   route: RouteProp<RootStackParamList, "Login">;
   navigation: StackNavigationProp<RootStackParamList, "Login">;
 };
 
-export const Stack = createStackNavigator<RootStackParamList>();
+export type RegisterScreenProps = {
+  route: RouteProp<RootStackParamList, "Register">;
+  navigation: StackNavigationProp<RootStackParamList, "Register">;
+};

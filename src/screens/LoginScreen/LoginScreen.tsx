@@ -1,19 +1,34 @@
 import { StatusBar } from "expo-status-bar";
-import React, { useState } from "react";
-import { KeyboardAvoidingView, StyleSheet, Text, View } from "react-native";
-import { Button, Input, Image } from "react-native-elements";
+import React, { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { KeyboardAvoidingView, StyleSheet, View } from "react-native";
+import { Button, Image } from "react-native-elements";
 
+import ControlledInput from "#root/components/ui/ControlledInput";
+import { auth } from "#root/lib/firebase";
 import { ProfileScreenProps } from "#root/lib/stack";
 
+type LoginPayload = {
+  email: string;
+  password: string;
+};
+
 const LoginScreen = ({ navigation }: ProfileScreenProps) => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const { control, handleSubmit } = useForm<LoginPayload>();
 
-  const handleLogin = () => {};
-  const handleRegister = () => {
-    navigation.navigate("Register");
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged(authUser => {
+      console.log({ authUser });
+      if (authUser) navigation.replace("Home");
+    });
+    return unsubscribe;
+  }, []);
+
+  const handleLogin = (payload: LoginPayload) => {
+    console.log({ payload });
   };
-
+  const handlePreLogin = handleSubmit(handleLogin);
+  const handleGoToRegister = () => navigation.navigate("Register");
   return (
     <KeyboardAvoidingView behavior="padding" style={styles.container}>
       <StatusBar style="light" />
@@ -22,26 +37,20 @@ const LoginScreen = ({ navigation }: ProfileScreenProps) => {
         style={{ width: 200, height: 200 }}
       />
       <View style={styles.inputContainer}>
-        <Input
-          autoFocus
-          onChangeText={text => setEmail(text)}
-          placeholder="Email"
+        <ControlledInput
           autoCompleteType="email"
-          value={email}
+          autoFocus
+          control={control}
+          name="email"
+          placeholder="Email"
         />
-        <Input
-          onChangeText={text => setPassword(text)}
-          placeholder="Password"
-          secureTextEntry
-          textContentType="password"
-          value={password}
-        />
+        <ControlledInput control={control} name="password" placeholder="Password" secureTextEntry />
       </View>
 
-      <Button containerStyle={styles.button} onPress={handleLogin} title="Login" />
+      <Button containerStyle={styles.button} onPress={handlePreLogin} title="Login" />
       <Button
         containerStyle={styles.button}
-        onPress={handleRegister}
+        onPress={handleGoToRegister}
         title="Register"
         type="outline"
       />

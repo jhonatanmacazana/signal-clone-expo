@@ -4,6 +4,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { StackNavigationOptions } from "@react-navigation/stack";
 import React from "react";
 
+import { HomeScreen } from "#root/screens/HomeScreen";
 import { LoginScreen } from "#root/screens/LoginScreen";
 import { RegisterScreen } from "#root/screens/RegisterScreen";
 import { Stack } from "#root/lib/stack";
@@ -14,7 +15,7 @@ const globalScreenOptions: StackNavigationOptions = {
   headerTintColor: "white",
 };
 
-export default function App() {
+const App = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={globalScreenOptions}>
@@ -32,7 +33,16 @@ export default function App() {
             title: "Registrarse",
           }}
         />
+        <Stack.Screen
+          component={HomeScreen}
+          name="Home"
+          options={{
+            title: "Inicio",
+          }}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );
-}
+};
+
+export default App;
